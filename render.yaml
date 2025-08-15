@@ -6,7 +6,7 @@ services:
     startCommand: "uvicorn app:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: GROQ_API_KEY
-        fromSecret: true
+        sync: false # This will be set in the Render dashboard
       - key: PYTHON_VERSION
         value: 3.11.0
   - type: web
@@ -16,8 +16,8 @@ services:
     staticPublishPath: "agent-frontend/dist"
     routes:
       - type: rewrite
-        source: /api/*
-        destination: /api/*
+        source: /api/:path*
+        destination: http://rag-ai-agent-backend:8000/api/:path*
       - type: rewrite
         source: /*
         destination: /index.html
