@@ -84,6 +84,34 @@ cd AgenticRAG
 2.  Start a new conversation, upload documents, or ask questions to the AI agent.
 3.  Explore the "About Developer" section for more information about the creator.
 
+## Deployment
+
+This project is designed to be deployed with a separate frontend and backend. We recommend using Vercel for the frontend and Render for the backend, both of which offer generous free tiers.
+
+### 1. Deploying the Backend to Render
+
+1.  **Push your code to a GitHub repository.**
+2.  Go to the [Render dashboard](https://dashboard.render.com/) and create a new "Blueprint" service.
+3.  Connect your GitHub repository. Render will automatically detect the `render.yaml` file and configure the services.
+4.  In the Render dashboard, add your `GROQ_API_KEY` as a secret environment variable for the `rag-ai-agent-backend` service.
+5.  Render will build and deploy your backend. Once it's live, you will get a URL for your backend service (e.g., `https://your-backend-url.onrender.com`).
+
+### 2. Deploying the Frontend to Vercel
+
+1.  **Update the `vercel.json` file**:
+    In `agent-frontend/vercel.json`, replace `https://your-backend-url.onrender.com` with the actual URL of your deployed backend from Render.
+
+2.  **Push the updated `vercel.json` to your GitHub repository.**
+
+3.  **Deploy to Vercel**:
+    *   Go to the [Vercel dashboard](https://vercel.com/new).
+    *   Import your GitHub repository.
+    *   Vercel will automatically detect that it's a Vite project.
+    *   Set the **Root Directory** to `agent-frontend`.
+    *   Deploy the project.
+
+Vercel will build and deploy your frontend, and the rewrite rule in `vercel.json` will proxy API requests to your backend on Render.
+
 ## Project Structure
 
 ```
