@@ -3,9 +3,8 @@ title: RAG AI-Agent
 emoji: 💬
 colorFrom: blue
 colorTo: purple
+colorGradient: true
 sdk: docker
-python_version: "3.11"
-app_file: app.py
 pinned: false
 ---
 
