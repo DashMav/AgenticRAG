@@ -86,20 +86,40 @@ cd AgenticRAG
 
 ## Deployment
 
-This project is designed to be deployed with a separate frontend and backend. We recommend using Vercel for the frontend and Render for the backend, both of which offer generous free tiers.
+This project is designed for a modern, serverless deployment using Vercel for the frontend and Hugging Face Spaces for the backend, with Pinecone for the vector database. This setup is completely free and does not require a credit card.
 
-### 1. Deploying the Backend to Render
+### 1. Pinecone Setup (Vector Database)
 
-1.  **Push your code to a GitHub repository.**
-2.  Go to the [Render dashboard](https://dashboard.render.com/) and create a new "Blueprint" service.
-3.  Connect your GitHub repository. Render will automatically detect the `render.yaml` file and configure the services.
-4.  In the Render dashboard, add your `GROQ_API_KEY` as a secret environment variable for the `rag-ai-agent-backend` service.
-5.  Render will build and deploy your backend. Once it's live, you will get a URL for your backend service (e.g., `https://your-backend-url.onrender.com`).
+1.  **Create a Pinecone Account**: Go to [Pinecone](https://www.pinecone.io/) and sign up for a free account.
+2.  **Create an Index**:
+    *   In the Pinecone dashboard, create a new index.
+    *   Set the **Index Name** to `rag-ai-agent` (or a name of your choice).
+    *   Set the **Dimension** to `1536` (this is the dimension for OpenAI's embeddings).
+    *   Choose a free pod type.
+3.  **Get API Key**:
+    *   In the Pinecone dashboard, go to "API Keys" and copy your API key.
 
-### 2. Deploying the Frontend to Vercel
+### 2. Backend Deployment (Hugging Face Spaces)
+
+1.  **Create a Hugging Face Account**: If you don't have one, sign up at [Hugging Face](https://huggingface.co/).
+2.  **Create a New Space**:
+    *   Go to your Hugging Face profile and click on "New Space".
+    *   Select "Docker" as the Space SDK.
+    *   Choose a name for your space.
+    *   In the "Secrets" section, add the following secrets:
+        *   `GROQ_API_KEY`: Your Groq API key.
+        *   `PINECONE_API_KEY`: Your Pinecone API key.
+        *   `PINECONE_INDEX_NAME`: The name of your Pinecone index (e.g., `rag-ai-agent`).
+        *   `OPENAI_API_KEY`: Your OpenAI API key (required for embeddings).
+3.  **Push Your Code**:
+    *   Hugging Face will provide you with Git commands to push your repository to the Space.
+    *   Once you push your code, Hugging Face will build the Docker image and deploy your backend.
+    *   You will get a public URL for your backend (e.g., `https://your-space-name.hf.space`).
+
+### 3. Frontend Deployment (Vercel)
 
 1.  **Update the `vercel.json` file**:
-    In `agent-frontend/vercel.json`, replace `https://your-backend-url.onrender.com` with the actual URL of your deployed backend from Render.
+    *   In `agent-frontend/vercel.json`, replace `https://your-backend-url.onrender.com` with the actual URL of your deployed backend from Hugging Face Spaces.
 
 2.  **Push the updated `vercel.json` to your GitHub repository.**
 
@@ -110,7 +130,7 @@ This project is designed to be deployed with a separate frontend and backend. We
     *   Set the **Root Directory** to `agent-frontend`.
     *   Deploy the project.
 
-Vercel will build and deploy your frontend, and the rewrite rule in `vercel.json` will proxy API requests to your backend on Render.
+Vercel will build and deploy your frontend, and the rewrite rule in `vercel.json` will proxy API requests to your backend on Hugging Face Spaces.
 
 ## Project Structure
 

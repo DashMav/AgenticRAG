@@ -1,16 +1,17 @@
 import os
-import openai 
-import shutil
+import openai
 from dotenv import load_dotenv
-from langchain_community.document_loaders import DirectoryLoader,TextLoader, PyPDFLoader, UnstructuredMarkdownLoader
+from langchain_community.document_loaders import TextLoader, PyPDFLoader, UnstructuredMarkdownLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
-from langchain_chroma import Chroma
+from langchain_pinecone import Pinecone
+from pinecone import Pinecone as PineconeClient
 from typing import Optional
 
 load_dotenv()
-openai.api_key=os.environ.get('OPENAI_API_KEY')
-CHROMA_PATH='chroma_db'
+openai.api_key = os.environ.get('OPENAI_API_KEY')
+PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY')
+PINECONE_INDEX_NAME = os.environ.get('PINECONE_INDEX_NAME', 'rag-ai-agent')
 
 # Global variable for vector database
 _vector_db = None
@@ -21,53 +22,59 @@ def get_vector_db():
     """
     global _vector_db
     if _vector_db is None:
-        if os.path.exists(CHROMA_PATH):
-            _vector_db = Chroma(
-                persist_directory=CHROMA_PATH,
-                embedding_function=OpenAIEmbeddings()
-            )
-            print(f"Loaded existing vector database from {CHROMA_PATH}")
+        if PINECONE_API_KEY:
+            pinecone = PineconeClient(api_key=PINECONE_API_KEY)
+            if PINECONE_INDEX_NAME in pinecone.list_indexes().names():
+                _vector_db = Pinecone.from_existing_index(
+                    index_name=PINECONE_INDEX_NAME,
+                    embedding=OpenAIEmbeddings()
+                )
+                print(f"Loaded existing Pinecone index '{PINECONE_INDEX_NAME}'")
+            else:
+                print(f"Pinecone index '{PINECONE_INDEX_NAME}' not found. Please create it first.")
         else:
-            print("No existing vector database found.")
+            print("PINECONE_API_KEY not found in environment variables.")
     return _vector_db
 
-def save_chomadb(chunks, overwrite=False):
+def save_to_pinecone(chunks, overwrite=False):
     """
-    Save documents to Chroma DB
+    Save documents to Pinecone DB
     Args:
         chunks: Document chunks to save
-        overwrite: Whether to overwrite existing DB or extend it
+        overwrite: Whether to overwrite existing index (not supported by Pinecone in this way, handled by deleting and recreating)
     """
     global _vector_db
     
-    if overwrite and os.path.exists(CHROMA_PATH):
-        shutil.rmtree(CHROMA_PATH)
-        _vector_db = None  
-    
-    if _vector_db is None:
-        # Create new DB
-        _vector_db = Chroma.from_documents(
-            chunks, 
-            OpenAIEmbeddings(),
-            persist_directory=CHROMA_PATH
-        )
-        print(f"Created new vector database with {len(chunks)} chunks.")
-    else:
-        # Add new documents to existing DB
-        _vector_db.add_documents(chunks)
-        print(f"Added {len(chunks)} chunks to existing vector database.")
+    if not PINECONE_API_KEY:
+        raise ValueError("PINECONE_API_KEY is not set.")
+
+    pinecone = PineconeClient(api_key=PINECONE_API_KEY)
+
+    if overwrite and PINECONE_INDEX_NAME in pinecone.list_indexes().names():
+        pinecone.delete_index(PINECONE_INDEX_NAME)
+        print(f"Deleted existing Pinecone index '{PINECONE_INDEX_NAME}'")
+        _vector_db = None
+
+    if PINECONE_INDEX_NAME not in pinecone.list_indexes().names():
+        pinecone.create_index(name=PINECONE_INDEX_NAME, dimension=1536) # OpenAI embeddings are 1536 dimensional
+        print(f"Created new Pinecone index '{PINECONE_INDEX_NAME}'")
+
+    _vector_db = Pinecone.from_documents(
+        documents=chunks,
+        embedding=OpenAIEmbeddings(),
+        index_name=PINECONE_INDEX_NAME
+    )
+    print(f"Added {len(chunks)} chunks to Pinecone index '{PINECONE_INDEX_NAME}'.")
     
     return _vector_db
 
 def query_data(query_text: str, similarity_threshold: float = 0.7, k: int = 3):    
-    # Use the global vector db instance
     vector_db = get_vector_db()
     
     if vector_db is None:
         print("No vector database available. Please create one first.")
         return []
     
-    # get relevant queries
     results = vector_db.similarity_search_with_relevance_scores(query=query_text, k=k)
     if len(results) == 0 or results[0][1] < similarity_threshold:
         print(f"Unable to find matching results.")
@@ -96,12 +103,10 @@ def load_documents(files_paths:list):
         elif file_path.endswith('.md'):
             loader = UnstructuredMarkdownLoader(file_path)
         elif file_path.endswith('.txt'):
-            # Try with UTF-8 encoding first, fallback to other encodings if needed
             try:
                 loader = TextLoader(file_path, encoding='utf-8')
                 documents.extend(loader.load())
             except UnicodeDecodeError:
-                # Try with latin-1 
                 try:
                     loader = TextLoader(file_path, encoding='latin-1')
                     documents.extend(loader.load())
@@ -127,11 +132,8 @@ def text_spliter(documents):
         add_start_index=True
     )
     chunks=text_spliter.split_documents(documents)
-    # logging
     print(f"Split {len(documents)} documents into {len(chunks)} chunks.")
     return chunks
-
-
 
 def process_files(files_paths=None, overwrite=False):
     """
@@ -145,8 +147,7 @@ def process_files(files_paths=None, overwrite=False):
         
         chunks = text_spliter(documents)
         
-        # Save to vector database
-        save_chomadb(chunks, overwrite=overwrite)
+        save_to_pinecone(chunks, overwrite=overwrite)
     except Exception as e:
         print(f"Error processing files: {e}")
         return False, str(e)
