@@ -152,5 +152,3 @@ def process_files(files_paths=None, overwrite=False):
         print(f"Error processing files: {e}")
         return False, str(e)
     return True, "Files processed and saved to vector database successfully."
-    
-get_vector_db()
