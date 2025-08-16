@@ -1,3 +1,13 @@
+---
+title: RAG AI-Agent
+emoji: 💬
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+---
+
+
 # RAG AI-Agent
 
 RAG AI-Agent is a powerful Retrieval-Augmented Generation AI assistant that combines the capabilities of large language models with document-based knowledge retrieval. This application allows users to have conversational interactions with their documents by uploading files (PDF, TXT, DOCX), which are then semantically parsed, indexed, and made available for natural language queries.
