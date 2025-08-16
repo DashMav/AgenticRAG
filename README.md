@@ -3,10 +3,10 @@ title: RAG AI-Agent
 emoji: 💬
 colorFrom: blue
 colorTo: purple
-colorGradient: true
 sdk: docker
 pinned: false
 ---
+
 
 # RAG AI-Agent
 
