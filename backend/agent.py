@@ -5,7 +5,7 @@ from langchain.agents import AgentExecutor
 from langchain_openai import ChatOpenAI,OpenAI
 from langchain_groq import ChatGroq
 from langchain.prompts import ChatPromptTemplate
-from vector_database import query_data,get_vector_db
+from .vector_database import query_data,get_vector_db
 from langchain.agents import initialize_agent, AgentType
 from langchain_experimental.tools.python.tool import PythonREPLTool
 from langchain_community.tools.ddg_search.tool import DuckDuckGoSearchRun
