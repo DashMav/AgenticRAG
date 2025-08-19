@@ -141,6 +141,7 @@ For troubleshooting and detailed configuration, see the full deployment guide.
 ```
 RAG-AI-Agent/
 ├── .gitignore
+├── Dockerfile           # Dockerfile for backend deployment
 ├── LICENSE              # MIT License
 ├── README.md            # This file
 ├── agent-frontend/
@@ -162,7 +163,6 @@ RAG-AI-Agent/
 │   ├── agent.py             # Core AI agent logic, Groq integration
 │   ├── app.py               # FastAPI backend application, API endpoints
 │   ├── database.py          # Database models and utilities
-│   ├── Dockerfile           # Dockerfile for backend deployment
 │   ├── requirements.txt     # Python dependencies
 │   ├── scripts/             # Backend scripts
 │   ├── uploaded_files/      # Directory for uploaded files

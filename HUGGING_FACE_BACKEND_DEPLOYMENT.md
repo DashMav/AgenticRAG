@@ -60,7 +60,7 @@ The application will be accessible at: `https://YOUR-USERNAME-YOUR-SPACE-NAME.hf
 
 ### 3.1 Verify Dockerfile
 
-Ensure your `Dockerfile` in the `RAG-AI-Agent/backend/` directory contains:
+Ensure your `Dockerfile` in the `RAG-AI-Agent/` directory contains:
 
 ```dockerfile
 # Use an official Python runtime as a parent image
@@ -69,25 +69,25 @@ FROM python:3.11-slim
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements file into the container at /app
-COPY ./requirements.txt /app/
+# Copy the backend requirements file into the container at /app/backend/
+COPY ./backend/requirements.txt /app/backend/
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r /app/backend/requirements.txt
 
-# Copy the rest of the application's code into the container at /app
-COPY . /app/
+# Copy the rest of the backend application's code into the container at /app/backend/
+COPY ./backend /app/backend/
 
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
 
 # Run app.py when the container launches
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
 ### 3.2 Verify Requirements
 
-Ensure your `requirements.txt` includes all necessary dependencies:
+Ensure your `backend/requirements.txt` includes all necessary dependencies:
 
 ```txt
 openai==1.76.0
