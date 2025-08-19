@@ -4,6 +4,9 @@ FROM python:3.11-slim
 # Set the working directory in the container
 WORKDIR /app
 
+# Set PYTHONPATH to include the current working directory for module discovery
+ENV PYTHONPATH=/app
+
 # Copy the backend requirements file into the container at /app/backend/
 COPY ./backend/requirements.txt /app/backend/
 

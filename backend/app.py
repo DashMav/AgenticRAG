@@ -4,13 +4,13 @@ import shutil
 from typing import List
 from fastapi import Depends
 from pydantic import BaseModel
-from agent import agent_executor
+from .agent import agent_executor
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from database import get_db, DBChat, DBMessage
+from .database import get_db, DBChat, DBMessage
 from fastapi.middleware.cors import CORSMiddleware
-from vector_database import get_vector_db, process_files
+from .vector_database import get_vector_db, process_files
 from fastapi import FastAPI, File, UploadFile, Form,HTTPException,status
 from dotenv import load_dotenv
 
