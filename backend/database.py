@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Text
 
 # Create SQLite engine
-DATABASE_URL = "sqlite:///./rag_agent.db"
+DATABASE_URL = "sqlite:////tmp/rag_agent.db"
 engine = create_engine(DATABASE_URL)
 
 # Create declarative base
