@@ -1,10 +1,11 @@
+import os
 import json
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Text
 
 # Create SQLite engine
-DATABASE_URL = "sqlite:////tmp/rag_agent.db"
+DATABASE_URL = "sqlite:///" + os.path.join(os.path.dirname(__file__), "rag_agent.db")
 engine = create_engine(DATABASE_URL)
 
 # Create declarative base

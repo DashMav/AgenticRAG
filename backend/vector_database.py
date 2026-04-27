@@ -1,17 +1,17 @@
 import os
-import openai
 from dotenv import load_dotenv
-from langchain_community.document_loaders import TextLoader, PyPDFLoader, UnstructuredMarkdownLoader
+from langchain_community.document_loaders import TextLoader, PyPDFLoader, UnstructuredMarkdownLoader, Docx2txtLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import Pinecone
 from pinecone import Pinecone as PineconeClient
 from typing import Optional
 
 load_dotenv()
-openai.api_key = os.environ.get('OPENAI_API_KEY')
 PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY')
-PINECONE_INDEX_NAME = os.environ.get('PINECONE_INDEX_NAME', 'rag-ai-agent')
+PINECONE_INDEX_NAME = os.environ.get('PINECONE_INDEX_NAME', 'quickstart')
+
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 # Global variable for vector database
 _vector_db = None
@@ -27,7 +27,7 @@ def get_vector_db():
             if PINECONE_INDEX_NAME in pinecone.list_indexes().names():
                 _vector_db = Pinecone.from_existing_index(
                     index_name=PINECONE_INDEX_NAME,
-                    embedding=OpenAIEmbeddings()
+                    embedding=embeddings
                 )
                 print(f"Loaded existing Pinecone index '{PINECONE_INDEX_NAME}'")
             else:
@@ -56,12 +56,12 @@ def save_to_pinecone(chunks, overwrite=False):
         _vector_db = None
 
     if PINECONE_INDEX_NAME not in pinecone.list_indexes().names():
-        pinecone.create_index(name=PINECONE_INDEX_NAME, dimension=1536) # OpenAI embeddings are 1536 dimensional
+        pinecone.create_index(name=PINECONE_INDEX_NAME, dimension=384)
         print(f"Created new Pinecone index '{PINECONE_INDEX_NAME}'")
 
     _vector_db = Pinecone.from_documents(
         documents=chunks,
-        embedding=OpenAIEmbeddings(),
+        embedding=embeddings,
         index_name=PINECONE_INDEX_NAME
     )
     print(f"Added {len(chunks)} chunks to Pinecone index '{PINECONE_INDEX_NAME}'.")
@@ -100,6 +100,8 @@ def load_documents(files_paths:list):
     for file_path in files_paths:
         if file_path.endswith('.pdf'):
             loader = PyPDFLoader(file_path)
+        elif file_path.endswith('.docx'):
+            loader = Docx2txtLoader(file_path)
         elif file_path.endswith('.md'):
             loader = UnstructuredMarkdownLoader(file_path)
         elif file_path.endswith('.txt'):

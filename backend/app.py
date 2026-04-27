@@ -29,7 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_FOLDER = "/tmp/uploaded_files"
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploaded_files")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 

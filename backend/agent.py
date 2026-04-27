@@ -2,7 +2,7 @@ import datetime
 import os
 from langchain.agents import Tool
 from langchain.agents import AgentExecutor
-from langchain_openai import ChatOpenAI,OpenAI
+from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
 from langchain.prompts import ChatPromptTemplate
 from .vector_database import query_data,get_vector_db
@@ -50,6 +50,7 @@ def agent_executor(query_text:str,agent=False):
     prompt_template=ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
     prompt=prompt_template.format(context=context_text,question=query_text)
     tools = []
+    reasoning_steps = []
     
     if agent:
         def get_current_time(*args):

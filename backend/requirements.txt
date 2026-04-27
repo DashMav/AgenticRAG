@@ -1,4 +1,5 @@
-openai==1.76.0
+langchain-huggingface>=0.0.3
+sentence-transformers>=2.7.0
 uvicorn==0.34.2
 langchain==0.3.24
 langchain-community==0.3.22
@@ -6,7 +7,6 @@ fastapi==0.115.9
 pypdf==5.4.0
 python-dotenv==1.1.0
 unstructured==0.17.2
-langchain-openai==0.3.14
 python-multipart==0.0.20
 langchain-experimental==0.3.4
 duckduckgo-search==8.0.1
@@ -14,6 +14,7 @@ SQLAlchemy==2.0.40
 langchain-groq==0.2.0
 pinecone-client==3.2.2
 langchain-pinecone>=0.1.0
+docx2txt>=0.8
 
 # Testing dependencies
 requests>=2.31.0
