@@ -7,7 +7,7 @@ from langchain_pinecone import Pinecone
 from pinecone import Pinecone as PineconeClient
 from typing import Optional
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY')
 PINECONE_INDEX_NAME = os.environ.get('PINECONE_INDEX_NAME', 'quickstart')
 

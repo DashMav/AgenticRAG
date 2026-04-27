@@ -14,7 +14,7 @@ from .vector_database import get_vector_db, process_files
 from fastapi import FastAPI, File, UploadFile, Form,HTTPException,status
 from dotenv import load_dotenv
 
-load_dotenv() # Load environment variables from .env file
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env")) # Load environment variables from .env file
 
 
 

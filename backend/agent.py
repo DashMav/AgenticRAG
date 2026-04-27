@@ -13,11 +13,18 @@ from langchain_community.tools.ddg_search.tool import DuckDuckGoSearchRun
 
 
 PROMPT_TEMPLATE = """
-Answer the question based on the following context:
+You are a helpful AI assistant. Use the context below to answer the question if relevant.
+If the context is empty or not relevant, answer from your own knowledge.
+Only use tools if the question explicitly requires real-time data or calculations.
+For greetings or general conversation, respond directly using:
+Thought: I can answer this directly.
+Final Answer: <your response>
+
+Context:
 {context}
 
 ---------------
-the question : {question}
+Question: {question}
 """
 def parse_reasoning_steps(result):
         response = result["output"]
@@ -71,7 +78,7 @@ def agent_executor(query_text:str,agent=False):
         #     description="A search tool that can search the web "
         # )
         tools.extend([date_tool, calculator_tool]) # Removed search_tool
-    llm=ChatGroq(groq_api_key=os.environ.get("GROQ_API_KEY"), model_name="llama3-8b-8192")
+    llm=ChatGroq(groq_api_key=os.environ.get("GROQ_API_KEY"), model_name="llama-3.1-8b-instant")
     if agent:
         agent_executor = initialize_agent(
             tools=tools,
@@ -80,6 +87,7 @@ def agent_executor(query_text:str,agent=False):
             verbose=True,
             handle_parsing_errors=True,
             return_intermediate_steps=True,
+            max_iterations=5,
         )
     
         # response = agent_executor.run(prompt)
